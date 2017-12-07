@@ -1,0 +1,10 @@
+## Install Required Packages
+
+Install Python 3.6 and SQlite3. The Application was built and Tested with Python 3.6 and SQLITE3. Make sure you create Databse file 
+name -- jenkins_job.db --- on your machine.
+
+Then, remember to change you chnage the director of the Databse to your directory on your machine in line 22 in The major Code File.
+
+engine = create_engine('sqlite:///C:\\Users\\Labeeb\\Desktop\\virtualenv\\seedstars\\jenkins_job.db', echo=False)    
+
+Thanks.
