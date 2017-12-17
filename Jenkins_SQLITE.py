@@ -58,47 +58,44 @@ def createJobList(start, lastBuildNumber, jobName):
         current_as_jobs.estimatedDuration = current['estimatedDuration']
         current_as_jobs.name = jobName
         current_as_jobs.result = current['result']
-        current_as_jobs.timeStamp = datetime.datetime.fromtimestamp(long(current['timestamp'])*0.001)
+        current_as_jobs.timeStamp = datetime.datetime.fromtimestamp(current['timestamp']*0.001)
         jList.append(current_as_jobs)
     return jList
 
 
+url = 'http://localhost:8080'
+username = input('Enter username: ')
+password = input('Enter password: ')
+server = connectToJenkins(url, username, password)
 
-while True:
-    url = 'http://localhost:8080' #The default Host for Jenkins
-    username = input('Enter username: ') #Python Input function to Enter your Username
-    password = input('Enter password: ') #Python Input function to Enter your Password
-    server = connectToJenkins(url, username, password)
+authenticated = false
+try:
+    server.get_whoami()
+    authenticated = true
+except jenkins.JenkinsException as e:
+    print ('Authentication error')
     authenticated = false
-    try:
-        server.get_whoami()
-        authenticated = true
-    except jenkins.JenkinsException as e:
-        print('Username or Password is not Correct, Please, Enter Correct USername and Password')
-        authenticated = false
-        sys.exit(1) #This terminate the program if the Username and password is not correct
-    confirm == False
-else:
-    if authenticated:
-        session = initializeDb()
 
-        # get a list of all jobs
-        jobs = server.get_all_jobs()
-        for j in jobs:
-            jobName = j['name'] # get job name
-            #print jobName
-            lastJobId = getLastJobId(session, jobName) # get last locally stored job of this name
-            lastBuildNumber = server.get_job_info(jobName)['lastBuild']['number']  # get last build number from Jenkins for this job 
-            
-            # if job not stored, update the db with all entries
-            if lastJobId == None:
-                start = 0
-            # if job exists, update the db with new entrie
-            else:
-                start = lastJobId
+if authenticated:
+    session = initializeDb()
 
-            # create a list of unadded job objects
-            jlist = createJobList(start, lastBuildNumber, jobName)
-            # add job to db
-            addJob(session, jlist)
-        print("The Job Data has been Successful Stored in the Database")
+    # get a list of all jobs
+    jobs = server.get_all_jobs()
+    for j in jobs:
+        jobName = j['name'] # get job name
+        #print jobName
+        lastJobId = getLastJobId(session, jobName) # get last locally stored job of this name
+        lastBuildNumber = server.get_job_info(jobName)['lastBuild']['number']  # get last build number from Jenkins for this job 
+        
+        # if job not stored, update the db with all entries
+        if lastJobId == None:
+            start = 0
+        # if job exists, update the db with new entrie
+        else:
+            start = lastJobId
+
+        # create a list of unadded job objects
+        jlist = createJobList(start, lastBuildNumber, jobName)
+        # add job to db
+        addJob(session, jlist)
+print("The job is successfully Updated into Database")
